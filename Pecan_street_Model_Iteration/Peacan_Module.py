@@ -59,16 +59,70 @@ class DataReader:
         mainDataFrame.to_csv(output_csv_path)
 
 
-# =============== To Extract the one second Data based on IDs ====================================
+class DeepLearning:
+    X = None
+    Y = None
+    trainX, testX = None, None
+    trainY, testY = None, None
+    Xscaler, Yscaler = None, None
+    scaled_X_train, scaled_y_train = None, None
+    n_input = None  # how many samples/rows/timesteps to look in the past in order to forecast the next sample
+    batchSize = None  # Number of time series samples in each batch
+    epochs = None
 
-pecan = DataReader()
-pecan.dataExtractorOneSecond(
-    r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\file2.csv",
-    r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\1s_Austine_data")
+    def __init__(self):
+        import numpy as np
+        import pandas as pd
+        from keras.layers import LSTM
+        from matplotlib import pyplot as plt
+        from keras.models import Sequential
+        from keras.layers import Dense
+        from keras.layers import Flatten
+        from keras.layers import Dropout
+        from keras.layers.convolutional import Conv1D
+        from keras.layers.convolutional import MaxPooling1D
+        from keras.utils import to_categorical
+        from sklearn.model_selection import train_test_split
+        from sklearn.preprocessing import MinMaxScaler
+        from keras.preprocessing.sequence import TimeseriesGenerator
+        pass
 
+    def prepareData(self, csv_path):
+        sourceData = pd.read_csv(csv_path)
+        self.X = sourceData[['current']]  # independent Variable
+        self.Y = sourceData[['EV_label']]  # target variable
 
-# =============== Convert Extracted data's to single csv with preprocessed ====================================
+        # split the data into train and test
+        self.trainX, self.testX = train_test_split(X, test_size=0.3, shuffle=False)
+        self.trainY, self.testY = train_test_split(Y, test_size=0.3, shuffle=False)
 
-pecan.combineDataIDs(r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\1s_Austine_data",
-                    r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV.csv")
+        print("Shape of TrainX and TrainY ", self.trainX.shape, self.trainY.shape)
+        print("Shape of TestX and TestY ", self.trainY.shape, self.testY.shape)
 
+        self.Xscaler = MinMaxScaler(feature_range=(0, 1))  # scale so that all the X data will range from 0 to 1
+        self.Xscaler.fit(trainX)
+        self.scaled_X_train = Xscaler.transform(self.trainX)
+        print('Scaled Train X Shape ', self.trainX.shape)
+
+        self.Yscaler = MinMaxScaler(feature_range=(0, 1))
+        self.Yscaler.fit(trainY)
+        self.scaled_y_train = trainY.to_numpy()
+        self.scaled_y_train = scaled_y_train.reshape(
+            -1)  # remove the second dimension from y so the shape changes from (n,1) to (n,)
+        self.scaled_y_train = np.insert(scaled_y_train, 0, 0)
+        self.scaled_y_train = np.delete(scaled_y_train, -1)
+        print('Scaled Train Y Shape ', self.scaled_y_train.shape)
+
+    def LSTM(self):
+        n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
+        generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                        batch_size=self.batchSize)
+
+        #  ================= Keras Model LSTM Build ===========================
+        model = Sequential()
+        model.add(LSTM(150, activation='relu', input_shape=(self.n_input, n_features)))
+        model.add(
+            Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
+        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        model.summary()
+        model.fit_generator(generator, epochs=self.epochs)
