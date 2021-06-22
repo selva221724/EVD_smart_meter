@@ -84,14 +84,25 @@ class DeepLearning:
     n_input = None  # how many samples/rows/timesteps to look in the past in order to forecast the next sample
     batchSize = None  # Number of time series samples in each batch
     epochs = None
+    model = None
 
     def __init__(self):
 
         pass
 
+    def runModel(self,csv_path,n_input,batchSize,epochs,modelName):
+        self.n_input = n_input
+        self.batchSize = batchSize
+        self.epochs = epochs
+        self.prepareData(csv_path)
+        if modelName =='LSTM':
+            self.LSTM()
+        self.evaluation()
+
+
     def prepareData(self, csv_path):
         sourceData = pd.read_csv(csv_path)
-        self.X = sourceData[['current']]  # independent Variable
+        self.X = sourceData[['total_power']]  # independent Variable
         self.Y = sourceData[['EV_label']]  # target variable
 
         # split the data into train and test
@@ -121,10 +132,25 @@ class DeepLearning:
                                         batch_size=self.batchSize)
 
         #  ================= Keras Model LSTM Build ===========================
-        model = Sequential()
-        model.add(LSTM(150, activation='relu', input_shape=(self.n_input, n_features)))
-        model.add(
+        self.model = Sequential()
+        self.model.add(LSTM(150, activation='relu', input_shape=(self.n_input, n_features)))
+        self.model.add(
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
-        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-        model.summary()
-        model.fit_generator(generator, epochs=self.epochs)
+        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.summary()
+        self.model.fit_generator(generator, epochs=self.epochs)
+
+    def evaluation(self):
+        scaled_X_test = self.Xscaler.transform(self.testX)
+        test_generator = TimeseriesGenerator(scaled_X_test, np.zeros(len(self.testX)), length=self.n_input, batch_size=self.batchSize)
+
+        y_pred_scaled = self.model.predict(test_generator)
+        y_pred = self.Yscaler.inverse_transform(y_pred_scaled)
+        results = pd.DataFrame({'y_true': self.testY.values[self.n_input:].ravel().tolist(), 'y_pred': y_pred.ravel().tolist()})
+        results.plot(title='Test Data - Actual vs Predicted Time Series - AC1')
+
+        plt.figure()
+        plt.plot(self.testX)
+
+
+
