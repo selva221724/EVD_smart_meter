@@ -1,9 +1,16 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from pathlib import Path
 from glob import glob
-
+import numpy as np
+import pandas as pd
+from keras.layers import LSTM
+from matplotlib import pyplot as plt
+from keras.models import Sequential
+from keras.layers import Dense
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from keras.preprocessing.sequence import TimeseriesGenerator
 
 class DataReader:
 
@@ -17,7 +24,15 @@ class DataReader:
         austineIds = [6139, 3039, 3538, 8386, 4031, 9922, 7951, 8565, 9278, 661, 7800, 9160, 8156, 7536, 2361, 2818,
                       4767, 3456, 9019, 7901, 7719, 5746, 1642, 4373, 2335]
 
-        for id in austineIds:
+        californiaIds = [9612, 4495, 9213, 6547, 7062, 8342, 3864, 8733, 1450, 2606, 9775, 5938, 1731, 4934, 7114, 203,
+                         3938, 3687, 6377, 9836, 1524, 8061, 8574]
+
+        newyorkIds = [387, 1417, 2318, 142, 914, 27, 3996, 3488, 558, 5679, 2096, 2358, 950, 3000, 4283, 3517, 5058,
+                      4550, 1222, 5587, 1240, 9053, 5982, 5997, 3700]
+
+        dataIds = austineIds
+
+        for id in dataIds:
             source_dict = {'dataid': [],
                            'localminute': [],
                            'car1': [],
@@ -71,20 +86,7 @@ class DeepLearning:
     epochs = None
 
     def __init__(self):
-        import numpy as np
-        import pandas as pd
-        from keras.layers import LSTM
-        from matplotlib import pyplot as plt
-        from keras.models import Sequential
-        from keras.layers import Dense
-        from keras.layers import Flatten
-        from keras.layers import Dropout
-        from keras.layers.convolutional import Conv1D
-        from keras.layers.convolutional import MaxPooling1D
-        from keras.utils import to_categorical
-        from sklearn.model_selection import train_test_split
-        from sklearn.preprocessing import MinMaxScaler
-        from keras.preprocessing.sequence import TimeseriesGenerator
+
         pass
 
     def prepareData(self, csv_path):
@@ -93,24 +95,24 @@ class DeepLearning:
         self.Y = sourceData[['EV_label']]  # target variable
 
         # split the data into train and test
-        self.trainX, self.testX = train_test_split(X, test_size=0.3, shuffle=False)
-        self.trainY, self.testY = train_test_split(Y, test_size=0.3, shuffle=False)
+        self.trainX, self.testX = train_test_split(self.X, test_size=0.3, shuffle=False)
+        self.trainY, self.testY = train_test_split(self.Y, test_size=0.3, shuffle=False)
 
         print("Shape of TrainX and TrainY ", self.trainX.shape, self.trainY.shape)
         print("Shape of TestX and TestY ", self.trainY.shape, self.testY.shape)
 
         self.Xscaler = MinMaxScaler(feature_range=(0, 1))  # scale so that all the X data will range from 0 to 1
-        self.Xscaler.fit(trainX)
-        self.scaled_X_train = Xscaler.transform(self.trainX)
+        self.Xscaler.fit(self.trainX)
+        self.scaled_X_train = self.Xscaler.transform(self.trainX)
         print('Scaled Train X Shape ', self.trainX.shape)
 
         self.Yscaler = MinMaxScaler(feature_range=(0, 1))
-        self.Yscaler.fit(trainY)
-        self.scaled_y_train = trainY.to_numpy()
-        self.scaled_y_train = scaled_y_train.reshape(
+        self.Yscaler.fit(self.trainY)
+        self.scaled_y_train = self.trainY.to_numpy()
+        self.scaled_y_train = self.scaled_y_train.reshape(
             -1)  # remove the second dimension from y so the shape changes from (n,1) to (n,)
-        self.scaled_y_train = np.insert(scaled_y_train, 0, 0)
-        self.scaled_y_train = np.delete(scaled_y_train, -1)
+        self.scaled_y_train = np.insert(self.scaled_y_train, 0, 0)
+        self.scaled_y_train = np.delete(self.scaled_y_train, -1)
         print('Scaled Train Y Shape ', self.scaled_y_train.shape)
 
     def LSTM(self):
