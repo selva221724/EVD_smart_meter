@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
 
+
 class DataReader:
 
     def __init__(self):
@@ -33,25 +34,15 @@ class DataReader:
         dataIds = austineIds
 
         for id in dataIds:
-            source_dict = {'dataid': [],
-                           'localminute': [],
-                           'car1': [],
-                           'car2': [],
-                           'grid': [],
-                           'solar': [],
-                           'solar2': [],
-                           'leg1v': [],
-                           'leg2v': [],
-                           }
-            for chunk in tqdm(pd.read_csv(file_path, chunksize=100000)):
+            mainDataFrame = pd.DataFrame(
+                columns=['dataid', 'localminute', 'car1', 'car2', 'grid', 'solar', 'solar2', 'leg1v', 'leg2v'])
+            for chunk in tqdm(pd.read_csv(file_path, chunksize=100000,
+                                          usecols=['dataid', 'localminute', 'car1', 'car2', 'grid', 'solar', 'solar2',
+                                                   'leg1v', 'leg2v'])):
                 df = chunk[chunk['dataid'] == id]
-                df = df[['dataid', 'localminute', 'car1', 'car2', 'grid', 'solar', 'solar2', 'leg1v', 'leg2v']]
-                for i, j in df.iterrows():
-                    for k, l in j.items():
-                        source_dict[k].append(l)
+                mainDataFrame = mainDataFrame.append(df)
 
-            out_df = pd.DataFrame(source_dict)
-            out_df.to_csv(output_path + r"\DataID_" + str(id) + '_1_second.csv')
+            mainDataFrame.to_csv(output_path + r"\DataID_" + str(id) + '_1_second.csv', index= False)
             print(str(id) + ' is done')
 
     def dataPreprocessor(self, dataFrame):
@@ -87,18 +78,16 @@ class DeepLearning:
     model = None
 
     def __init__(self):
-
         pass
 
-    def runModel(self,csv_path,n_input,batchSize,epochs,modelName):
+    def runModel(self, csv_path, n_input, batchSize, epochs, modelName):
         self.n_input = n_input
         self.batchSize = batchSize
         self.epochs = epochs
         self.prepareData(csv_path)
-        if modelName =='LSTM':
+        if modelName == 'LSTM':
             self.LSTM()
         self.evaluation()
-
 
     def prepareData(self, csv_path):
         sourceData = pd.read_csv(csv_path)
@@ -142,15 +131,14 @@ class DeepLearning:
 
     def evaluation(self):
         scaled_X_test = self.Xscaler.transform(self.testX)
-        test_generator = TimeseriesGenerator(scaled_X_test, np.zeros(len(self.testX)), length=self.n_input, batch_size=self.batchSize)
+        test_generator = TimeseriesGenerator(scaled_X_test, np.zeros(len(self.testX)), length=self.n_input,
+                                             batch_size=self.batchSize)
 
         y_pred_scaled = self.model.predict(test_generator)
         y_pred = self.Yscaler.inverse_transform(y_pred_scaled)
-        results = pd.DataFrame({'y_true': self.testY.values[self.n_input:].ravel().tolist(), 'y_pred': y_pred.ravel().tolist()})
+        results = pd.DataFrame(
+            {'y_true': self.testY.values[self.n_input:].ravel().tolist(), 'y_pred': y_pred.ravel().tolist()})
         results.plot(title='Test Data - Actual vs Predicted Time Series - AC1')
 
         plt.figure()
         plt.plot(self.testX)
-
-
-
