@@ -4,13 +4,17 @@ from tqdm import tqdm
 from glob import glob
 import numpy as np
 import pandas as pd
-from keras.layers import LSTM
+from keras import callbacks
+from keras.layers import LSTM, Dense
 from matplotlib import pyplot as plt
 from keras.models import Sequential
-from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
+from sklearn.metrics import classification_report
+import os
+from datetime import datetime
+import logging
 
 
 class DataReader:
@@ -42,7 +46,7 @@ class DataReader:
                 df = chunk[chunk['dataid'] == id]
                 mainDataFrame = mainDataFrame.append(df)
 
-            mainDataFrame.to_csv(output_path + r"\DataID_" + str(id) + '_1_second.csv', index= False)
+            mainDataFrame.to_csv(output_path + r"\DataID_" + str(id) + '_1_second.csv', index=False)
             print(str(id) + ' is done')
 
     def dataPreprocessor(self, dataFrame):
@@ -65,6 +69,22 @@ class DataReader:
         mainDataFrame.to_csv(output_csv_path)
 
 
+class CustomCallback(callbacks.Callback):
+    def on_train_begin(self, logs=None):
+        logging.info("Training Started")
+        pass
+
+    def on_train_end(self, logs=None):
+        logging.info("Training Finished")
+        pass
+
+    def on_epoch_begin(self, epoch, logs=None):
+        logging.info("epoch number "+str(epoch) +" started")
+
+    def on_epoch_end(self, epoch, logs=None):
+        logging.info("epoch number "+str(epoch)+" finished")
+
+
 class DeepLearning:
     X = None
     Y = None
@@ -76,18 +96,36 @@ class DeepLearning:
     batchSize = None  # Number of time series samples in each batch
     epochs = None
     model = None
+    modelName = None
+    dataset = None
+    folderName = None
+    accuracyReport = None
 
     def __init__(self):
         pass
 
-    def runModel(self, csv_path, n_input, batchSize, epochs, modelName):
+    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset):
         self.n_input = n_input
         self.batchSize = batchSize
         self.epochs = epochs
         self.prepareData(csv_path)
+        self.modelName = modelName
+        self.dataset = dataset
+        self.createFolder()  # create folder containing results
         if modelName == 'LSTM':
             self.LSTM()
         self.evaluation()
+        logging.shutdown()
+
+    def createFolder(self):
+        today = datetime.now()
+        self.folderName = today.strftime('%d_%m_%Y__%H_%M')
+        if not os.path.exists(r"Data_iteration/" + self.folderName):
+            os.makedirs(r"Data_iteration/" + self.folderName)
+
+        logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
+                            filename=r"Data_iteration/" + self.folderName + r"\IterationLog.log", level=logging.INFO)
+        logging.info('Log File is Created Successfully')
 
     def prepareData(self, csv_path):
         sourceData = pd.read_csv(csv_path)
@@ -127,7 +165,8 @@ class DeepLearning:
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
-        self.model.fit_generator(generator, epochs=self.epochs)
+
+        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
     def evaluation(self):
         scaled_X_test = self.Xscaler.transform(self.testX)
@@ -136,9 +175,26 @@ class DeepLearning:
 
         y_pred_scaled = self.model.predict(test_generator)
         y_pred = self.Yscaler.inverse_transform(y_pred_scaled)
-        results = pd.DataFrame(
-            {'y_true': self.testY.values[self.n_input:].ravel().tolist(), 'y_pred': y_pred.ravel().tolist()})
-        results.plot(title='Test Data - Actual vs Predicted Time Series - AC1')
+        y_pred = y_pred.ravel().tolist()
 
-        plt.figure()
-        plt.plot(self.testX)
+        y_pred = [1 if i >= 0.5 else 0 for i in y_pred]
+        y_true = self.testY.values[self.n_input:].ravel().tolist()
+        self.accuracyReport = classification_report(y_true, y_pred)
+        logging.info(accuracyReport)
+        y_true = [-0.25 if i == 1 else -0.5 for i in y_true]
+        y_pred = [-0.75 if i >= 0.5 else -1 for i in y_pred]
+
+        results = pd.DataFrame({'yTrue': y_true, 'yPred': y_pred})
+        results.plot(title="Model Name: " + self.modelName + ", No.of Epoch: " + str(self.epochs)
+                           + ", Batch Size: " + str(self.batchSize) + ", n_inputs: " + str(self.n_input))
+        x = self.testX['total_power']
+        normalized = (x - min(x)) / (max(x) - min(x))
+        plt.plot(list(normalized))
+        plt.legend(['Y True', 'Y Predicted', 'Aggregated Power (normalized)'], loc="upper right")
+
+        figure = plt.gcf()  # get current figure
+        figure.set_size_inches(12, 6)
+        # when saving, specify the DPI
+        plt.savefig(r"Data_iteration/" + self.folderName + "/Result.png", dpi=500)
+        plt.close()
+        logging.info("Exported Results Successfully")
