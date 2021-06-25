@@ -23,6 +23,6 @@ dl.runModel(
     r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\out - Copy.csv",
     n_input=25,
     batchSize=60,
-    epochs=1,
-    modelName='LSTM', dataset='Austine'
+    epochs=5,
+    modelName='LSTM2', dataset='Austine'
     )

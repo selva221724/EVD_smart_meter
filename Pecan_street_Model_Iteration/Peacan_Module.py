@@ -112,8 +112,11 @@ class DeepLearning:
         self.modelName = modelName
         self.dataset = dataset
         self.createFolder()  # create folder containing results
-        if modelName == 'LSTM':
-            self.LSTM()
+
+        if modelName == 'LSTM1':
+            self.LSTM1()
+        elif modelName == 'LSTM2':
+            self.LSTM2()
         self.evaluation()
         logging.shutdown()
 
@@ -153,7 +156,7 @@ class DeepLearning:
         self.scaled_y_train = np.delete(self.scaled_y_train, -1)
         print('Scaled Train Y Shape ', self.scaled_y_train.shape)
 
-    def LSTM(self):
+    def LSTM1(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
         generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
                                         batch_size=self.batchSize)
@@ -168,7 +171,24 @@ class DeepLearning:
 
         self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
+    def LSTM2(self):
+        n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
+        generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                        batch_size=self.batchSize)
+
+        #  ================= Keras Model LSTM Build ===========================
+        self.model = Sequential()
+        self.model.add(LSTM(150, activation='relu', input_shape=(self.n_input, n_features)))
+        self.model.add(
+            Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
+        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.summary()
+
+        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+
+
     def evaluation(self):
+
         scaled_X_test = self.Xscaler.transform(self.testX)
         test_generator = TimeseriesGenerator(scaled_X_test, np.zeros(len(self.testX)), length=self.n_input,
                                              batch_size=self.batchSize)
@@ -180,7 +200,7 @@ class DeepLearning:
         y_pred = [1 if i >= 0.5 else 0 for i in y_pred]
         y_true = self.testY.values[self.n_input:].ravel().tolist()
         self.accuracyReport = classification_report(y_true, y_pred)
-        logging.info(accuracyReport)
+        logging.info(self.accuracyReport)
         y_true = [-0.25 if i == 1 else -0.5 for i in y_true]
         y_pred = [-0.75 if i >= 0.5 else -1 for i in y_pred]
 
