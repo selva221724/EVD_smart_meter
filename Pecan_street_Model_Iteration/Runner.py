@@ -18,11 +18,12 @@ pecan = DataReader()
 
 # =============== Run LSTM model ================================================
 
+models = ['LSTM1','LSTM2','LSTM3','GRU']
 dl = DeepLearning()
 dl.runModel(
     r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\out - Copy.csv",
     n_input=25,
     batchSize=60,
     epochs=5,
-    modelName='LSTM2', dataset='Austine'
+    modelName='GRU', dataset='Austine'
     )

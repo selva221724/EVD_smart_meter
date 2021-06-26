@@ -1,11 +1,9 @@
-import pandas as pd
-import numpy as np
 from tqdm import tqdm
 from glob import glob
 import numpy as np
 import pandas as pd
 from keras import callbacks
-from keras.layers import LSTM, Dense
+from keras.layers import LSTM, Dense, Dropout, GRU
 from matplotlib import pyplot as plt
 from keras.models import Sequential
 from sklearn.model_selection import train_test_split
@@ -18,6 +16,8 @@ import logging
 
 
 class DataReader:
+    """ To Read the Data and Sanitize and preprocess the Pecan Street Dataset
+    """
 
     def __init__(self):
 
@@ -49,7 +49,8 @@ class DataReader:
             mainDataFrame.to_csv(output_path + r"\DataID_" + str(id) + '_1_second.csv', index=False)
             print(str(id) + ' is done')
 
-    def dataPreprocessor(self, dataFrame):
+    @staticmethod
+    def dataPreprocessor(dataFrame):
         dataFrame['localminute'] = pd.to_datetime(dataFrame['localminute'], format='%Y-%m-%d %H:%M:%S-%f')
         dataFrame = dataFrame.sort_values(by='localminute')
         dataFrame['total_power'] = dataFrame['grid'] + dataFrame['solar']
@@ -70,6 +71,7 @@ class DataReader:
 
 
 class CustomCallback(callbacks.Callback):
+    """ This is to log the Epochs in the Keras model iterations a callback"""
     def on_train_begin(self, logs=None):
         logging.info("Training Started")
         pass
@@ -90,7 +92,7 @@ class DeepLearning:
     Y = None
     trainX, testX = None, None
     trainY, testY = None, None
-    Xscaler, Yscaler = None, None
+    xScaler, yScaler = None, None
     scaled_X_train, scaled_y_train = None, None
     n_input = None  # how many samples/rows/timesteps to look in the past in order to forecast the next sample
     batchSize = None  # Number of time series samples in each batch
@@ -117,6 +119,10 @@ class DeepLearning:
             self.LSTM1()
         elif modelName == 'LSTM2':
             self.LSTM2()
+        elif modelName == 'LSTM3':
+            self.LSTM3()
+        elif modelName == 'GRU':
+            self.GRU()
         self.evaluation()
         logging.shutdown()
 
@@ -142,13 +148,13 @@ class DeepLearning:
         print("Shape of TrainX and TrainY ", self.trainX.shape, self.trainY.shape)
         print("Shape of TestX and TestY ", self.trainY.shape, self.testY.shape)
 
-        self.Xscaler = MinMaxScaler(feature_range=(0, 1))  # scale so that all the X data will range from 0 to 1
-        self.Xscaler.fit(self.trainX)
-        self.scaled_X_train = self.Xscaler.transform(self.trainX)
+        self.xScaler = MinMaxScaler(feature_range=(0, 1))  # scale so that all the X data will range from 0 to 1
+        self.xScaler.fit(self.trainX)
+        self.scaled_X_train = self.xScaler.transform(self.trainX)
         print('Scaled Train X Shape ', self.trainX.shape)
 
-        self.Yscaler = MinMaxScaler(feature_range=(0, 1))
-        self.Yscaler.fit(self.trainY)
+        self.yScaler = MinMaxScaler(feature_range=(0, 1))
+        self.yScaler.fit(self.trainY)
         self.scaled_y_train = self.trainY.to_numpy()
         self.scaled_y_train = self.scaled_y_train.reshape(
             -1)  # remove the second dimension from y so the shape changes from (n,1) to (n,)
@@ -178,23 +184,60 @@ class DeepLearning:
 
         #  ================= Keras Model LSTM Build ===========================
         self.model = Sequential()
-        self.model.add(LSTM(150, activation='relu', input_shape=(self.n_input, n_features)))
+        self.model.add(LSTM(150, activation='sigmoid', input_shape=(self.n_input, n_features)
+                            ,inner_activation='hard_sigmoid' ))
+        self.model.add(Dropout(0.5))
+
         self.model.add(
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
-        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
         self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
+    def LSTM3(self):
+        n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
+        generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                        batch_size=self.batchSize)
+
+        #  ================= Keras Model LSTM Build ===========================
+        self.model = Sequential()
+        self.model.add(LSTM(50, return_sequences=True, input_shape=(self.n_input, n_features)))
+        self.model.add(Dropout(0.2))
+        self.model.add(LSTM(100, return_sequences=False))
+        self.model.add(Dropout(0.2))
+        self.model.add(
+            Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
+        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.summary()
+        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+
+    def GRU(self):
+        n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
+        generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                        batch_size=self.batchSize)
+
+        #  ================= Keras Model GRU Build ===========================
+        self.model = Sequential()
+        self.model.add(GRU(50,return_sequences=True, input_shape=(self.n_input, n_features)))
+        self.model.add(Dropout(0.2))
+        self.model.add(GRU(100, return_sequences=False))
+        self.model.add(Dropout(0.2))
+        self.model.add(
+            Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
+        self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.summary()
+
+        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
     def evaluation(self):
 
-        scaled_X_test = self.Xscaler.transform(self.testX)
+        scaled_X_test = self.xScaler.transform(self.testX)
         test_generator = TimeseriesGenerator(scaled_X_test, np.zeros(len(self.testX)), length=self.n_input,
                                              batch_size=self.batchSize)
 
         y_pred_scaled = self.model.predict(test_generator)
-        y_pred = self.Yscaler.inverse_transform(y_pred_scaled)
+        y_pred = self.yScaler.inverse_transform(y_pred_scaled)
         y_pred = y_pred.ravel().tolist()
 
         y_pred = [1 if i >= 0.5 else 0 for i in y_pred]
