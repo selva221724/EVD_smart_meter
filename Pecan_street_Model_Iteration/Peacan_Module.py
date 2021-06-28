@@ -15,6 +15,7 @@ from datetime import datetime
 import logging
 import tensorflow as tf
 
+
 class DataReader:
     """ To Read the Data and Sanitize and preprocess the Pecan Street Dataset
     """
@@ -72,6 +73,7 @@ class DataReader:
 
 class CustomCallback(callbacks.Callback):
     """ This is to log the Epochs in the Keras model iterations a callback"""
+
     def on_train_begin(self, logs=None):
         logging.info("Training Started")
         pass
@@ -81,10 +83,10 @@ class CustomCallback(callbacks.Callback):
         pass
 
     def on_epoch_begin(self, epoch, logs=None):
-        logging.info("epoch number "+str(epoch) +" started")
+        logging.info("epoch number " + str(epoch) + " started")
 
     def on_epoch_end(self, epoch, logs=None):
-        logging.info("epoch number "+str(epoch)+" finished")
+        logging.info("epoch number " + str(epoch) + " finished")
 
 
 class DeepLearning:
@@ -102,6 +104,7 @@ class DeepLearning:
     dataset = None
     folderName = None
     accuracyReport = None
+    history = None
 
     def __init__(self):
         pass
@@ -124,6 +127,7 @@ class DeepLearning:
         elif modelName == 'GRU':
             self.GRU()
         self.evaluation()
+        self.trainingValidation()
         logging.shutdown()
 
     def createFolder(self):
@@ -175,7 +179,7 @@ class DeepLearning:
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
     def LSTM2(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -185,7 +189,7 @@ class DeepLearning:
         #  ================= Keras Model LSTM Build ===========================
         self.model = Sequential()
         self.model.add(LSTM(150, activation='sigmoid', input_shape=(self.n_input, n_features)
-                            ,inner_activation='hard_sigmoid' ))
+                            , inner_activation='hard_sigmoid'))
         self.model.add(Dropout(0.5))
 
         self.model.add(
@@ -219,7 +223,7 @@ class DeepLearning:
 
         #  ================= Keras Model GRU Build ===========================
         self.model = Sequential()
-        self.model.add(GRU(50,return_sequences=True, input_shape=(self.n_input, n_features)))
+        self.model.add(GRU(50, return_sequences=True, input_shape=(self.n_input, n_features)))
         self.model.add(Dropout(0.2))
         self.model.add(GRU(100, return_sequences=False))
         self.model.add(Dropout(0.2))
@@ -261,3 +265,17 @@ class DeepLearning:
         plt.savefig(r"Data_iteration/" + self.folderName + "/Result.png", dpi=500)
         plt.close()
         logging.info("Exported Results Successfully")
+
+    def trainingValidation(self):
+        loss = [i for i in self.history.history['loss'] if i < 1]
+        epochs = self.history.epoch[len(loss)-1:]
+        plt.plot(epochs,loss)
+        plt.title('model train loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.show()
+        figure = plt.gcf()  # get current figure
+        figure.set_size_inches(12, 6)
+        # when saving, specify the DPI
+        plt.savefig(r"Data_iteration/" + self.folderName + "/training.png", dpi=500)
+        plt.close()
