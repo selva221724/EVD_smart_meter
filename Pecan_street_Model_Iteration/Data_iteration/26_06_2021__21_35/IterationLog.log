@@ -1,0 +1,28 @@
+06/26/2021 09:35:32 PM: INFO: Log File is Created Successfully
+06/26/2021 09:35:33 PM: WARNING: From C:\Users\TamilS\Anaconda3\envs\jupy\lib\site-packages\tensorflow\python\ops\nn_impl.py:180: add_dispatch_support.<locals>.wrapper (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+06/26/2021 09:35:33 PM: WARNING: From C:\Users\TamilS\Anaconda3\envs\jupy\lib\site-packages\keras\backend\tensorflow_backend.py:422: The name tf.global_variables is deprecated. Please use tf.compat.v1.global_variables instead.
+
+06/26/2021 09:35:33 PM: INFO: Training Started
+06/26/2021 09:35:33 PM: INFO: epoch number 0 started
+06/26/2021 09:38:31 PM: INFO: epoch number 0 finished
+06/26/2021 09:38:31 PM: INFO: epoch number 1 started
+06/26/2021 09:42:01 PM: INFO: epoch number 1 finished
+06/26/2021 09:42:01 PM: INFO: epoch number 2 started
+06/26/2021 09:45:29 PM: INFO: epoch number 2 finished
+06/26/2021 09:45:29 PM: INFO: epoch number 3 started
+06/26/2021 09:48:57 PM: INFO: epoch number 3 finished
+06/26/2021 09:48:57 PM: INFO: epoch number 4 started
+06/26/2021 09:52:25 PM: INFO: epoch number 4 finished
+06/26/2021 09:52:25 PM: INFO: Training Finished
+06/26/2021 09:52:52 PM: INFO:               precision    recall  f1-score   support
+
+           0       0.98      0.99      0.99    153034
+           1       0.89      0.80      0.84     14916
+
+    accuracy                           0.97    167950
+   macro avg       0.94      0.90      0.91    167950
+weighted avg       0.97      0.97      0.97    167950
+
+06/26/2021 09:52:53 PM: INFO: Exported Results Successfully

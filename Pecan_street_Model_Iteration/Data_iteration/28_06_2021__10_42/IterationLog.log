@@ -1,0 +1,14 @@
+06/28/2021 10:42:16 AM: INFO: Log File is Created Successfully
+06/28/2021 10:42:17 AM: WARNING: From C:\Users\TamilS\Anaconda3\envs\jupy\lib\site-packages\tensorflow\python\ops\nn_impl.py:180: add_dispatch_support.<locals>.wrapper (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+06/28/2021 10:42:18 AM: WARNING: From C:\Users\TamilS\Anaconda3\envs\jupy\lib\site-packages\keras\backend\tensorflow_backend.py:422: The name tf.global_variables is deprecated. Please use tf.compat.v1.global_variables instead.
+
+06/28/2021 10:42:18 AM: INFO: Training Started
+06/28/2021 10:42:19 AM: INFO: epoch number 0 started
+06/28/2021 10:47:22 AM: INFO: epoch number 0 finished
+06/28/2021 10:47:22 AM: INFO: epoch number 1 started
+06/28/2021 10:52:22 AM: INFO: epoch number 1 finished
+06/28/2021 10:52:22 AM: INFO: epoch number 2 started
+06/28/2021 10:57:15 AM: INFO: epoch number 2 finished
+06/28/2021 10:57:15 AM: INFO: epoch number 3 started

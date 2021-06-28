@@ -13,7 +13,7 @@ from sklearn.metrics import classification_report
 import os
 from datetime import datetime
 import logging
-
+import tensorflow as tf
 
 class DataReader:
     """ To Read the Data and Sanitize and preprocess the Pecan Street Dataset
