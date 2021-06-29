@@ -36,6 +36,11 @@ class DataReader:
         newyorkIds = [387, 1417, 2318, 142, 914, 27, 3996, 3488, 558, 5679, 2096, 2358, 950, 3000, 4283, 3517, 5058,
                       4550, 1222, 5587, 1240, 9053, 5982, 5997, 3700]
 
+        # ============================== ev present in the house ========================
+
+        # austine = [2335, 7719, 1642, 4373, 661, 6139, 8156, 4767]
+        # newyork = [5058, 1222, 5679, 3000, 27, 9053, 3517]
+
         dataIds = austineIds
 
         for id in dataIds:
@@ -55,8 +60,10 @@ class DataReader:
         dataFrame['localminute'] = pd.to_datetime(dataFrame['localminute'], format='%Y-%m-%d %H:%M:%S-%f')
         dataFrame = dataFrame.sort_values(by='localminute')
         dataFrame['total_power'] = dataFrame['grid'] + dataFrame['solar']
+        dataFrame['total_power'] = dataFrame['total_power'].replace(np.NAN, 0, regex=True)
         dataFrame['car1'] = dataFrame['car1'].replace(np.NAN, 0, regex=True)
         dataFrame['EV_label'] = [1 if int(i) >= 1 else 0 for i in list(dataFrame['car1'])]
+        dataFrame['EV_label'] = dataFrame['EV_label'].replace(np.NAN, 0, regex=True)
         dataFrame = dataFrame[['localminute', 'dataid', 'total_power', 'EV_label']]
         return dataFrame
 
@@ -268,8 +275,8 @@ class DeepLearning:
 
     def trainingValidation(self):
         loss = [i for i in self.history.history['loss'] if i < 1]
-        epochs = self.history.epoch[len(loss)-1:]
-        plt.plot(epochs,loss)
+        epochs = self.history.epoch[len(loss) - 1:]
+        plt.plot(epochs, loss)
         plt.title('model train loss')
         plt.ylabel('loss')
         plt.xlabel('epoch')
