@@ -71,6 +71,7 @@ class DataReader:
         csvList = glob(input_folder + "\*.csv")
         mainDataFrame = pd.DataFrame(columns=['localminute', 'dataid', 'total_power', 'EV_label'])
         for csv in csvList:
+            print(csv)
             dataFrame = pd.read_csv(csv)
             processedDataFrame = self.dataPreprocessor(dataFrame)
             mainDataFrame = mainDataFrame.append(processedDataFrame)
@@ -204,7 +205,7 @@ class DeepLearning:
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
     def LSTM3(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -221,7 +222,7 @@ class DeepLearning:
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
-        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
     def GRU(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -239,7 +240,7 @@ class DeepLearning:
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
 
     def evaluation(self):
 
