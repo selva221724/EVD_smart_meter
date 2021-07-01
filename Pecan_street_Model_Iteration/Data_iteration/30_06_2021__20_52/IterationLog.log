@@ -1,0 +1,23 @@
+06/30/2021 08:52:19 PM: INFO: Log File is Created Successfully
+06/30/2021 08:52:22 PM: INFO: Training Started
+06/30/2021 08:52:22 PM: INFO: epoch number 0 started
+06/30/2021 09:37:28 PM: INFO: epoch number 0 finished
+06/30/2021 09:37:28 PM: INFO: epoch number 1 started
+06/30/2021 10:21:48 PM: INFO: epoch number 1 finished
+06/30/2021 10:21:48 PM: INFO: epoch number 2 started
+06/30/2021 11:06:02 PM: INFO: epoch number 2 finished
+06/30/2021 11:06:02 PM: INFO: epoch number 3 started
+06/30/2021 11:50:04 PM: INFO: epoch number 3 finished
+06/30/2021 11:50:04 PM: INFO: epoch number 4 started
+07/01/2021 12:34:11 AM: INFO: epoch number 4 finished
+07/01/2021 12:34:11 AM: INFO: Training Finished
+07/01/2021 12:37:06 AM: INFO:               precision    recall  f1-score   support
+
+           0       0.98      1.00      0.99   6890660
+           1       0.99      0.40      0.57    263235
+
+    accuracy                           0.98   7153895
+   macro avg       0.99      0.70      0.78   7153895
+weighted avg       0.98      0.98      0.97   7153895
+
+07/01/2021 12:37:14 AM: INFO: Exported Results Successfully
