@@ -275,8 +275,8 @@ class DeepLearning:
         logging.info("Exported Results Successfully")
 
     def trainingValidation(self):
-        loss = [i for i in self.history.history['loss'] if i < 1]
-        epochs = self.history.epoch[len(loss) - 1:]
+        loss = self.history.history['loss']
+        epochs = self.history.epoch
         plt.plot(epochs, loss)
         plt.title('model train loss')
         plt.ylabel('loss')
