@@ -27,6 +27,7 @@ class DataReader:
     @staticmethod
     def dataExtractorOneSecond(file_path, output_path):
 
+
         austineIds = [6139, 3039, 3538, 8386, 4031, 9922, 7951, 8565, 9278, 661, 7800, 9160, 8156, 7536, 2361, 2818,
                       4767, 3456, 9019, 7901, 7719, 5746, 1642, 4373, 2335]
 
