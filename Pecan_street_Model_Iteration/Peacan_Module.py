@@ -136,6 +136,8 @@ class DeepLearning:
             self.GRU()
         self.evaluation()
         self.trainingValidation()
+        self.save_model()
+        logging.info("Training Successfully Finished")
         logging.shutdown()
 
     def createFolder(self):
@@ -277,6 +279,7 @@ class DeepLearning:
     def trainingValidation(self):
         loss = self.history.history['loss']
         epochs = self.history.epoch
+        logging.info("Loss values: "+str(list(loss)))
         plt.plot(epochs, loss)
         plt.title('model train loss')
         plt.ylabel('loss')
@@ -287,3 +290,63 @@ class DeepLearning:
         # when saving, specify the DPI
         plt.savefig(r"Data_iteration/" + self.folderName + "/training.png", dpi=500)
         plt.close()
+
+    def save_model(self):
+        if not os.path.exists(r"Data_iteration/" + self.folderName + "/model"):
+            os.makedirs(r"Data_iteration/" + self.folderName + "/model")
+
+        model_json = self.model.to_json()
+        with open(r"Data_iteration/" + self.folderName + "/model/" + "model.json", "w") as json_file:
+            json_file.write(model_json)
+        # serialize weights to HDF5
+        self.model.save_weights(r"Data_iteration/" + self.folderName + "/model/" + "model.h5")
+        logging.info("Saved model to disk")
+
+
+    def predictFromTheSavedModel(self, json_path, weights_path, data):
+        from keras.models import model_from_json
+        json_file = open(json_path, 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        self.model = model_from_json(loaded_model_json)
+        # load weights into new model
+        self.model.load_weights(weights_path)
+
+        print("Loaded model from disk")
+        sourceData = pd.read_csv(data)
+        self.X = sourceData[['total_power']]  # independent Variable
+        self.Y = sourceData[['EV_label']]  # target variable
+
+        self.xScaler = MinMaxScaler(feature_range=(0, 1))  # scale so that all the X data will range from 0 to 1
+        self.xScaler.fit(self.X)
+        self.scaled_X_train = self.xScaler.transform(self.X)
+
+        self.yScaler = MinMaxScaler(feature_range=(0, 1))
+        self.yScaler.fit(self.Y)
+        self.scaled_y_train = self.Y.to_numpy()
+        self.scaled_y_train = self.scaled_y_train.reshape(
+            -1)  # remove the second dimension from y so the shape changes from (n,1) to (n,)
+        self.scaled_y_train = np.insert(self.scaled_y_train, 0, 0)
+        self.scaled_y_train = np.delete(self.scaled_y_train, -1)
+
+        test_generator = TimeseriesGenerator(self.scaled_X_train, np.zeros(len(self.X)), length=25,
+                                             batch_size=60)
+
+        y_pred_scaled = self.model.predict(test_generator)
+        y_pred = self.yScaler.inverse_transform(y_pred_scaled)
+        y_pred = y_pred.ravel().tolist()
+
+        y_pred = [1 if i >= 0.5 else 0 for i in y_pred]
+        y_true = self.Y.values[25:].ravel().tolist()
+        self.accuracyReport = classification_report(y_true, y_pred)
+        logging.info(self.accuracyReport)
+        y_true = [-0.25 if i == 1 else -0.5 for i in y_true]
+        y_pred = [-0.75 if i >= 0.5 else -1 for i in y_pred]
+
+        results = pd.DataFrame({'yTrue': y_true, 'yPred': y_pred})
+        results.plot(title="prediction on the saved model")
+        x = self.X['total_power']
+        normalized = (x - min(x)) / (max(x) - min(x))
+        plt.plot(list(normalized))
+        plt.legend(['Y True', 'Y Predicted', 'Aggregated Power (normalized)'], loc="upper right")
+
