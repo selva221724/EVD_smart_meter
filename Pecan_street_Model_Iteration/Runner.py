@@ -17,12 +17,23 @@ from Peacan_Module import DeepLearning
 
 # =============== Run LSTM model ================================================
 
-models = ['LSTM1','LSTM2','LSTM3','GRU']
+models = ['LSTM1', 'LSTM2', 'LSTM3', 'GRU']
 dl = DeepLearning()
 dl.runModel(
-    r"D:\EV_D\NY\1s_NY_data\tamil\Combined_CSV.csv",
-    n_input=60,
-    batchSize=100,
-    epochs=20,
-    modelName='GRU', dataset='NewYork'
-    )
+    r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy.csv",
+    n_input=25,
+    batchSize=60,
+    epochs=1,
+    modelName='GRU', dataset='Austine'
+)
+
+# ==================== Run Predction =========================
+
+# dl = DeepLearning()
+# dl.predictFromTheSavedModel(
+#     json_path=r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\05_07_2021__17_00\model\model.json",
+#     weights_path=r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\05_07_2021__17_00\model\model.h5",
+#     data =r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy (2).csv"
+# )
+#
+
