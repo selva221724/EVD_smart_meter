@@ -20,9 +20,9 @@ from Peacan_Module import DeepLearning
 models = ['LSTM1','LSTM2','LSTM3','GRU']
 dl = DeepLearning()
 dl.runModel(
-    r"D:\EV_D\NY\1s_NY_data\Combined_CSV.csv",
-    n_input=25,
-    batchSize=60,
-    epochs=5,
-    modelName='GRU', dataset='Austine'
+    r"D:\EV_D\NY\1s_NY_data\tamil\Combined_CSV.csv",
+    n_input=60,
+    batchSize=100,
+    epochs=20,
+    modelName='GRU', dataset='NewYork'
     )
