@@ -1,5 +1,6 @@
 from Peacan_Module import DataReader
 from Peacan_Module import DeepLearning
+import time
 
 # =============== To Extract the one second Data based on IDs ====================================
 
@@ -16,16 +17,38 @@ from Peacan_Module import DeepLearning
 
 
 # =============== Run LSTM model ================================================
+#
+# models = ['LSTM1', 'LSTM2', 'LSTM3', 'GRU']
+# dl = DeepLearning()
+# dl.runModel(
+#     r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV.csv",
+#     n_input=60,
+#     batchSize=60,
+#     epochs=5,
+#     modelName='LSTM2', dataset='Austine'
+# )
 
-models = ['LSTM1', 'LSTM2', 'LSTM3', 'GRU']
-dl = DeepLearning()
-dl.runModel(
-    r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy.csv",
-    n_input=25,
-    batchSize=60,
-    epochs=1,
-    modelName='GRU', dataset='Austine'
-)
+# ============== Run DL model as a mutiple Iteration ====================================
+import itertools
+
+n_input = [25, 60]
+batch_size = [60]
+epochs = [1, 10, 20]
+get_combination = list(itertools.product(*[n_input, batch_size, epochs]))
+
+for i in get_combination:
+    print("=====================================================================")
+    print("n_inputs: "+str(i[0])+" batch size: "+str(i[1])+" epochs: "+str(i[2]))
+    print("=====================================================================")
+    dl = DeepLearning()
+    dl.runModel(
+        r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy.csv",
+        n_input=i[0],
+        batchSize=i[1],
+        epochs=i[2],
+        modelName='LSTM2', dataset='Austine'
+    )
+    time.sleep(60)
 
 # ==================== Run Predction =========================
 
@@ -36,4 +59,3 @@ dl.runModel(
 #     data =r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy (2).csv"
 # )
 #
-

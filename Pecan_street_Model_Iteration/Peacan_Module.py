@@ -1,10 +1,11 @@
 from tqdm import tqdm
 from glob import glob
+import time
 import numpy as np
+from matplotlib import pyplot as plt
 import pandas as pd
 from keras import callbacks
 from keras.layers import LSTM, Dense, Dropout, GRU
-from matplotlib import pyplot as plt
 from keras.models import Sequential
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
@@ -14,6 +15,7 @@ import os
 from datetime import datetime
 import logging
 import tensorflow as tf
+plt.switch_backend('Agg')
 
 
 class DataReader:
@@ -26,7 +28,6 @@ class DataReader:
 
     @staticmethod
     def dataExtractorOneSecond(file_path, output_path):
-
 
         austineIds = [6139, 3039, 3538, 8386, 4031, 9922, 7951, 8565, 9278, 661, 7800, 9160, 8156, 7536, 2361, 2818,
                       4767, 3456, 9019, 7901, 7719, 5746, 1642, 4373, 2335]
@@ -116,6 +117,27 @@ class DeepLearning:
     history = None
 
     def __init__(self):
+
+        pass
+
+    def restVariables(self):
+        self.X = None
+        self.Y = None
+        self.trainX, self.testX = None, None
+        self.trainY, self.testY = None, None
+        self.xScaler, self.yScaler = None, None
+        self.scaled_X_train, self.scaled_y_train = None, None
+        self.n_input = None
+        self.batchSize = None
+        self.epochs = None
+        self.model = None
+        self.modelName = None
+        self.dataset = None
+        self.folderName = None
+        self.accuracyReport = None
+        self.history = None
+
+    def __del__(self):
         pass
 
     def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset):
@@ -140,6 +162,7 @@ class DeepLearning:
         self.save_model()
         logging.info("Training Successfully Finished")
         logging.shutdown()
+        self.restVariables()
 
     def createFolder(self):
         today = datetime.now()
@@ -273,24 +296,23 @@ class DeepLearning:
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 6)
         # when saving, specify the DPI
-        plt.savefig(r"Data_iteration/" + self.folderName + "/Result.png", dpi=500)
-        plt.close()
+        plt.savefig(r"Data_iteration/" + self.folderName + "/Result.png", dpi=100)
+        plt.close(figure)
         logging.info("Exported Results Successfully")
 
     def trainingValidation(self):
         loss = self.history.history['loss']
         epochs = self.history.epoch
-        logging.info("Loss values: "+str(list(loss)))
+        logging.info("Loss values: " + str(list(loss)))
         plt.plot(epochs, loss)
         plt.title('model train loss')
         plt.ylabel('loss')
         plt.xlabel('epoch')
-        plt.show()
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 6)
         # when saving, specify the DPI
-        plt.savefig(r"Data_iteration/" + self.folderName + "/training.png", dpi=500)
-        plt.close()
+        plt.savefig(r"Data_iteration/" + self.folderName + "/training.png", dpi=100)
+        plt.close(figure)
 
     def save_model(self):
         if not os.path.exists(r"Data_iteration/" + self.folderName + "/model"):
@@ -302,7 +324,6 @@ class DeepLearning:
         # serialize weights to HDF5
         self.model.save_weights(r"Data_iteration/" + self.folderName + "/model/" + "model.h5")
         logging.info("Saved model to disk")
-
 
     def predictFromTheSavedModel(self, json_path, weights_path, data):
         from keras.models import model_from_json
@@ -350,4 +371,3 @@ class DeepLearning:
         normalized = (x - min(x)) / (max(x) - min(x))
         plt.plot(list(normalized))
         plt.legend(['Y True', 'Y Predicted', 'Aggregated Power (normalized)'], loc="upper right")
-
