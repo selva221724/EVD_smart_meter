@@ -1,0 +1,56 @@
+07/06/2021 06:31:30 AM: INFO: Log File is Created Successfully
+07/06/2021 06:31:32 AM: INFO: Training Started
+07/06/2021 06:31:32 AM: INFO: epoch number 0 started
+07/06/2021 07:16:28 AM: INFO: epoch number 0 finished
+07/06/2021 07:16:28 AM: INFO: epoch number 1 started
+07/06/2021 07:59:58 AM: INFO: epoch number 1 finished
+07/06/2021 07:59:58 AM: INFO: epoch number 2 started
+07/06/2021 08:43:25 AM: INFO: epoch number 2 finished
+07/06/2021 08:43:25 AM: INFO: epoch number 3 started
+07/06/2021 09:26:40 AM: INFO: epoch number 3 finished
+07/06/2021 09:26:40 AM: INFO: epoch number 4 started
+07/06/2021 10:10:05 AM: INFO: epoch number 4 finished
+07/06/2021 10:10:05 AM: INFO: epoch number 5 started
+07/06/2021 10:53:30 AM: INFO: epoch number 5 finished
+07/06/2021 10:53:30 AM: INFO: epoch number 6 started
+07/06/2021 11:36:52 AM: INFO: epoch number 6 finished
+07/06/2021 11:36:52 AM: INFO: epoch number 7 started
+07/06/2021 12:20:10 PM: INFO: epoch number 7 finished
+07/06/2021 12:20:10 PM: INFO: epoch number 8 started
+07/06/2021 01:03:28 PM: INFO: epoch number 8 finished
+07/06/2021 01:03:28 PM: INFO: epoch number 9 started
+07/06/2021 01:46:38 PM: INFO: epoch number 9 finished
+07/06/2021 01:46:38 PM: INFO: epoch number 10 started
+07/06/2021 02:29:53 PM: INFO: epoch number 10 finished
+07/06/2021 02:29:53 PM: INFO: epoch number 11 started
+07/06/2021 03:13:09 PM: INFO: epoch number 11 finished
+07/06/2021 03:13:09 PM: INFO: epoch number 12 started
+07/06/2021 03:56:39 PM: INFO: epoch number 12 finished
+07/06/2021 03:56:39 PM: INFO: epoch number 13 started
+07/06/2021 04:40:15 PM: INFO: epoch number 13 finished
+07/06/2021 04:40:15 PM: INFO: epoch number 14 started
+07/06/2021 05:23:57 PM: INFO: epoch number 14 finished
+07/06/2021 05:23:57 PM: INFO: epoch number 15 started
+07/06/2021 06:07:42 PM: INFO: epoch number 15 finished
+07/06/2021 06:07:42 PM: INFO: epoch number 16 started
+07/06/2021 06:52:49 PM: INFO: epoch number 16 finished
+07/06/2021 06:52:49 PM: INFO: epoch number 17 started
+07/06/2021 07:36:45 PM: INFO: epoch number 17 finished
+07/06/2021 07:36:45 PM: INFO: epoch number 18 started
+07/06/2021 08:20:36 PM: INFO: epoch number 18 finished
+07/06/2021 08:20:36 PM: INFO: epoch number 19 started
+07/06/2021 09:04:41 PM: INFO: epoch number 19 finished
+07/06/2021 09:04:41 PM: INFO: Training Finished
+07/06/2021 09:07:47 PM: INFO:               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00   6890660
+           1       0.89      0.92      0.91    263235
+
+    accuracy                           0.99   7153895
+   macro avg       0.95      0.96      0.95   7153895
+weighted avg       0.99      0.99      0.99   7153895
+
+07/06/2021 09:07:55 PM: INFO: Exported Results Successfully
+07/06/2021 09:07:55 PM: INFO: Loss values: [0.08840043097734451, 0.1096382886171341, 0.12580880522727966, 0.13163135945796967, 0.1300254464149475, 0.14543390274047852, 0.13253569602966309, 0.12587115168571472, 0.12007313221693039, 0.11750272661447525, 0.11074401438236237, 0.12322793900966644, 0.1187063679099083, 0.11365917325019836, 0.11577823013067245, 0.11679105460643768, 0.11201377958059311, 0.11361274123191833, 0.12381494045257568, 0.1231769323348999]
+07/06/2021 09:26:31 PM: INFO: Saved model to disk
+07/06/2021 09:26:31 PM: INFO: Training Successfully Finished
