@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 from keras import callbacks
 from keras.layers import LSTM, Dense, Dropout, GRU
-from keras.models import Sequential
+from keras.models import Sequential,load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
@@ -115,6 +115,7 @@ class DeepLearning:
     folderName = None
     accuracyReport = None
     history = None
+    checkpoint = None
 
     def __init__(self):
 
@@ -140,7 +141,7 @@ class DeepLearning:
     def __del__(self):
         pass
 
-    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset):
+    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset,loadFromCheckPoint=None):
         self.n_input = n_input
         self.batchSize = batchSize
         self.epochs = epochs
@@ -148,15 +149,24 @@ class DeepLearning:
         self.modelName = modelName
         self.dataset = dataset
         self.createFolder()  # create folder containing results
+        if loadFromCheckPoint:
+            self.model = load_model(loadFromCheckPoint)
+            self.model.summary()
+            print("Last saved Checkpoint loaded successfully")
+            generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                            batch_size=self.batchSize)
+            self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                    callbacks=[CustomCallback(), self.checkpoint])
+        else:
+            if modelName == 'LSTM1':
+                self.LSTM1()
+            elif modelName == 'LSTM2':
+                self.LSTM2()
+            elif modelName == 'LSTM3':
+                self.LSTM3()
+            elif modelName == 'GRU':
+                self.GRU()
 
-        if modelName == 'LSTM1':
-            self.LSTM1()
-        elif modelName == 'LSTM2':
-            self.LSTM2()
-        elif modelName == 'LSTM3':
-            self.LSTM3()
-        elif modelName == 'GRU':
-            self.GRU()
         self.evaluation()
         self.trainingValidation()
         self.save_model()
@@ -173,6 +183,13 @@ class DeepLearning:
         logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
                             filename=r"Data_iteration/" + self.folderName + r"\IterationLog.log", level=logging.INFO)
         logging.info('Log File is Created Successfully')
+
+        if not os.path.exists(r"Data_iteration/" + self.folderName + "/checkpoints"):
+            os.makedirs(r"Data_iteration/" + self.folderName + "/checkpoints")
+
+        self.checkpoint = callbacks.ModelCheckpoint(r"Data_iteration/" + self.folderName + "/checkpoints/"+"{epoch:02d}.hdf5",
+                                     monitor='loss', verbose=1,save_best_only=False, mode='auto', period=1)
+
 
     def prepareData(self, csv_path):
         sourceData = pd.read_csv(csv_path)
@@ -200,6 +217,7 @@ class DeepLearning:
         self.scaled_y_train = np.delete(self.scaled_y_train, -1)
         print('Scaled Train Y Shape ', self.scaled_y_train.shape)
 
+
     def LSTM1(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
         generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
@@ -213,7 +231,7 @@ class DeepLearning:
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
 
     def LSTM2(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -231,7 +249,7 @@ class DeepLearning:
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
 
     def LSTM3(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -248,7 +266,7 @@ class DeepLearning:
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
 
     def GRU(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -266,7 +284,7 @@ class DeepLearning:
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback()])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
 
     def evaluation(self):
 
