@@ -22,6 +22,7 @@ models = ['LSTM1', 'LSTM2', 'LSTM3', 'GRU']
 dl = DeepLearning()
 dl.runModel(
 
+
     r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy.csv",
     n_input=60,
     batchSize=60,
