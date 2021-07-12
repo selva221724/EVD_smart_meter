@@ -1,0 +1,36 @@
+07/07/2021 06:28:37 AM: INFO: Log File is Created Successfully
+07/07/2021 06:28:39 AM: INFO: Training Started
+07/07/2021 06:28:39 AM: INFO: epoch number 0 started
+07/07/2021 07:13:20 AM: INFO: epoch number 0 finished
+07/07/2021 07:13:20 AM: INFO: epoch number 1 started
+07/07/2021 07:56:20 AM: INFO: epoch number 1 finished
+07/07/2021 07:56:20 AM: INFO: epoch number 2 started
+07/07/2021 08:39:10 AM: INFO: epoch number 2 finished
+07/07/2021 08:39:10 AM: INFO: epoch number 3 started
+07/07/2021 09:21:59 AM: INFO: epoch number 3 finished
+07/07/2021 09:21:59 AM: INFO: epoch number 4 started
+07/07/2021 10:05:02 AM: INFO: epoch number 4 finished
+07/07/2021 10:05:02 AM: INFO: epoch number 5 started
+07/07/2021 10:47:46 AM: INFO: epoch number 5 finished
+07/07/2021 10:47:47 AM: INFO: epoch number 6 started
+07/07/2021 11:30:39 AM: INFO: epoch number 6 finished
+07/07/2021 11:30:39 AM: INFO: epoch number 7 started
+07/07/2021 12:13:55 PM: INFO: epoch number 7 finished
+07/07/2021 12:13:55 PM: INFO: epoch number 8 started
+07/07/2021 12:57:11 PM: INFO: epoch number 8 finished
+07/07/2021 12:57:11 PM: INFO: epoch number 9 started
+07/07/2021 01:40:42 PM: INFO: epoch number 9 finished
+07/07/2021 01:40:42 PM: INFO: Training Finished
+07/07/2021 01:45:16 PM: INFO:               precision    recall  f1-score   support
+
+           0       1.00      1.00      1.00   6890625
+           1       0.88      0.91      0.90    263235
+
+    accuracy                           0.99   7153860
+   macro avg       0.94      0.95      0.95   7153860
+weighted avg       0.99      0.99      0.99   7153860
+
+07/07/2021 01:45:26 PM: INFO: Exported Results Successfully
+07/07/2021 01:45:26 PM: INFO: Loss values: [0.08307066559791565, 0.09255785495042801, 0.11117113381624222, 0.12277787178754807, 0.1252671778202057, 0.11787042021751404, 0.11510112881660461, 0.1132647916674614, 0.11368443071842194, 0.11164684593677521]
+07/07/2021 01:45:27 PM: INFO: Saved model to disk
+07/07/2021 01:45:27 PM: INFO: Training Successfully Finished
