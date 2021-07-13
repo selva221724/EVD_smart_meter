@@ -117,6 +117,7 @@ class DeepLearning:
     accuracyReport = None
     history = None
     checkpoint = None
+    rpath = None
 
     def __init__(self):
 
@@ -142,10 +143,11 @@ class DeepLearning:
     def __del__(self):
         pass
 
-    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset,loadFromCheckPoint=None):
+    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset,loadFromCheckPoint=None, rpath=r"Data_iteration/"):
         self.n_input = n_input
         self.batchSize = batchSize
         self.epochs = epochs
+        self.rpath = rpath
         self.prepareData(csv_path)
         self.modelName = modelName
         self.dataset = dataset
@@ -178,17 +180,17 @@ class DeepLearning:
     def createFolder(self):
         today = datetime.now()
         self.folderName = today.strftime('%d_%m_%Y__%H_%M')
-        if not os.path.exists(r"Data_iteration/" + self.folderName):
-            os.makedirs(r"Data_iteration/" + self.folderName)
+        if not os.path.exists(self.rpath + self.folderName):
+            os.makedirs(self.rpath + self.folderName)
 
         logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
-                            filename=r"Data_iteration/" + self.folderName + r"\IterationLog.log", level=logging.INFO)
+                            filename=self.rpath + self.folderName + r"\IterationLog.log", level=logging.INFO)
         logging.info('Log File is Created Successfully')
 
-        if not os.path.exists(r"Data_iteration/" + self.folderName + "/checkpoints"):
-            os.makedirs(r"Data_iteration/" + self.folderName + "/checkpoints")
+        if not os.path.exists(self.rpath + self.folderName + "/checkpoints"):
+            os.makedirs(self.rpath + self.folderName + "/checkpoints")
 
-        self.checkpoint = callbacks.ModelCheckpoint(r"Data_iteration/" + self.folderName + "/checkpoints/"+"{epoch:02d}.hdf5",
+        self.checkpoint = callbacks.ModelCheckpoint(self.rpath + self.folderName + "/checkpoints/"+"{epoch:02d}.hdf5",
                                      monitor='loss', verbose=1,save_best_only=False, mode='auto', period=1)
 
 
@@ -241,8 +243,7 @@ class DeepLearning:
 
         #  ================= Keras Model LSTM Build ===========================
         self.model = Sequential()
-        self.model.add(LSTM(150, activation='sigmoid', input_shape=(self.n_input, n_features)
-                            , inner_activation='hard_sigmoid'))
+        self.model.add(LSTM(150, activation='sigmoid', input_shape=(self.n_input, n_features)))
         self.model.add(Dropout(0.5))
 
         self.model.add(
@@ -315,7 +316,7 @@ class DeepLearning:
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 6)
         # when saving, specify the DPI
-        plt.savefig(r"Data_iteration/" + self.folderName + "/Result.png", dpi=100)
+        plt.savefig(self.rpath + self.folderName + "/Result.png", dpi=100)
         plt.close(figure)
         logging.info("Exported Results Successfully")
 
@@ -330,18 +331,18 @@ class DeepLearning:
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 6)
         # when saving, specify the DPI
-        plt.savefig(r"Data_iteration/" + self.folderName + "/training.png", dpi=100)
+        plt.savefig(self.rpath + self.folderName + "/training.png", dpi=100)
         plt.close(figure)
 
     def save_model(self):
-        if not os.path.exists(r"Data_iteration/" + self.folderName + "/model"):
-            os.makedirs(r"Data_iteration/" + self.folderName + "/model")
+        if not os.path.exists(self.rpath + self.folderName + "/model"):
+            os.makedirs(self.rpath + self.folderName + "/model")
 
         model_json = self.model.to_json()
-        with open(r"Data_iteration/" + self.folderName + "/model/" + "model.json", "w") as json_file:
+        with open(self.rpath + self.folderName + "/model/" + "model.json", "w") as json_file:
             json_file.write(model_json)
         # serialize weights to HDF5
-        self.model.save_weights(r"Data_iteration/" + self.folderName + "/model/" + "model.h5")
+        self.model.save_weights(self.rpath + self.folderName + "/model/" + "model.h5")
         logging.info("Saved model to disk")
 
     def predictFromTheSavedModel(self, json_path, weights_path, data):
