@@ -17,20 +17,20 @@ import time
 
 
 # =============== Run LSTM model ================================================
+# #
+# models = ['LSTM1', 'LSTM2', 'LSTM3', 'GRU']
+# dl = DeepLearning()
+# dl.runModel(
 #
-models = ['LSTM1', 'LSTM2', 'LSTM3', 'GRU']
-dl = DeepLearning()
-dl.runModel(
-
-
-    r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy.csv",
-    n_input=60,
-    batchSize=60,
-    epochs=5,
-    modelName='LSTM2', dataset='Austine',
-    # loadFromCheckPoint = r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\12_07_2021__22_35\checkpoints\05.hdf5"
-
-)
+#
+#     r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy.csv",
+#     n_input=60,
+#     batchSize=60,
+#     epochs=5,
+#     modelName='LSTM2', dataset='Austine',
+#     # loadFromCheckPoint = r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\12_07_2021__22_35\checkpoints\05.hdf5"
+#
+# )
 
 # ============== Run DL model as a mutiple Iteration ====================================
 # import itertools
@@ -56,10 +56,10 @@ dl.runModel(
 
 # ==================== Run Predction =========================
 
-# dl = DeepLearning()
-# dl.predictFromTheSavedModel(
-#     json_path=r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\05_07_2021__17_00\model\model.json",
-#     weights_path=r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\05_07_2021__17_00\model\model.h5",
-#     data =r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\tain_data\Combined_CSV - Copy (2).csv"
-# )
-#
+dl = DeepLearning()
+dl.predictFromTheSavedModel(
+    json_path=r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\06_07_2021__06_31\model\model.json",
+    weights_path=r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\Pecan_street_Model_Iteration\Data_iteration\06_07_2021__06_31\model\model.h5",
+    data =r"C:\Users\TamilS\Documents\Python Scripts\EV\EVD_smart_meter\synthetic_data\Synthetic_data\Synthetic_1.csv"
+)
+

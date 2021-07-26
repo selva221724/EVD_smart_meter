@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 from keras import callbacks
 from keras.layers import LSTM, Dense, Dropout, GRU
-from keras.models import Sequential,load_model
+from keras.models import Sequential, load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from keras.preprocessing.sequence import TimeseriesGenerator
@@ -15,13 +15,13 @@ import os
 from datetime import datetime
 import logging
 import tensorflow as tf
+
 plt.switch_backend('Agg')
 
 
 class DataReader:
     """ To Read the Data and Sanitize and preprocess the Pecan Street Dataset
     """
-
 
     def __init__(self):
 
@@ -118,6 +118,7 @@ class DeepLearning:
     history = None
     checkpoint = None
     rpath = None
+    epochNumber = None
 
     def __init__(self):
 
@@ -143,16 +144,20 @@ class DeepLearning:
     def __del__(self):
         pass
 
-    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset,loadFromCheckPoint=None, rpath=r"Data_iteration/"):
+    def runModel(self, csv_path, n_input, batchSize, epochs, modelName, dataset, loadFromCheckPoint=None,
+                 rpath=r"Data_iteration/"):
         self.n_input = n_input
         self.batchSize = batchSize
         self.epochs = epochs
+        self.epochNumber = epochs
         self.rpath = rpath
         self.prepareData(csv_path)
         self.modelName = modelName
         self.dataset = dataset
         self.createFolder()  # create folder containing results
         if loadFromCheckPoint:
+            last_epoch = int(loadFromCheckPoint.split('.')[-2])
+            self.epochNumber = self.epochNumber + last_epoch
             self.model = load_model(loadFromCheckPoint)
             self.model.summary()
             print("Last saved Checkpoint loaded successfully")
@@ -184,18 +189,23 @@ class DeepLearning:
             os.makedirs(self.rpath + self.folderName)
 
         logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p',
-                            filename=self.rpath + self.folderName + r"\IterationLog.log", level=logging.INFO)
+                            filename=self.rpath + self.folderName + "/IterationLog.log", level=logging.INFO)
         logging.info('Log File is Created Successfully')
 
         if not os.path.exists(self.rpath + self.folderName + "/checkpoints"):
             os.makedirs(self.rpath + self.folderName + "/checkpoints")
 
-        self.checkpoint = callbacks.ModelCheckpoint(self.rpath + self.folderName + "/checkpoints/"+"{epoch:02d}.hdf5",
-                                     monitor='loss', verbose=1,save_best_only=False, mode='auto', period=1)
-
+        self.checkpoint = callbacks.ModelCheckpoint(self.rpath + self.folderName + "/checkpoints/" + "{epoch:02d}.hdf5",
+                                                    monitor='loss', verbose=1, save_best_only=False, mode='auto',
+                                                    period=1)
 
     def prepareData(self, csv_path):
         sourceData = pd.read_csv(csv_path)
+
+        sourceData['localminute'] = pd.to_datetime(sourceData['localminute'], format='%Y-%m-%d %H:%M:%S.%f')
+        sourceData = sourceData.set_index('localminute')
+        sourceData = sourceData.resample('1T').first()
+        print("========= resample to 1 min is done============")
         self.X = sourceData[['total_power']]  # independent Variable
         self.Y = sourceData[['EV_label']]  # target variable
 
@@ -220,7 +230,6 @@ class DeepLearning:
         self.scaled_y_train = np.delete(self.scaled_y_train, -1)
         print('Scaled Train Y Shape ', self.scaled_y_train.shape)
 
-
     def LSTM1(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
         generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
@@ -234,7 +243,8 @@ class DeepLearning:
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                callbacks=[CustomCallback(), self.checkpoint])
 
     def LSTM2(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -245,13 +255,13 @@ class DeepLearning:
         self.model = Sequential()
         self.model.add(LSTM(150, activation='sigmoid', input_shape=(self.n_input, n_features)))
         self.model.add(Dropout(0.5))
-
         self.model.add(
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                callbacks=[CustomCallback(), self.checkpoint])
 
     def LSTM3(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -268,7 +278,8 @@ class DeepLearning:
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
         self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                callbacks=[CustomCallback(), self.checkpoint])
 
     def GRU(self):
         n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
@@ -286,7 +297,8 @@ class DeepLearning:
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
-        self.history = self.model.fit_generator(generator, epochs=self.epochs, callbacks=[CustomCallback(),self.checkpoint])
+        self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                callbacks=[CustomCallback(), self.checkpoint])
 
     def evaluation(self):
 
@@ -306,7 +318,7 @@ class DeepLearning:
         y_pred = [-0.75 if i >= 0.5 else -1 for i in y_pred]
 
         results = pd.DataFrame({'yTrue': y_true, 'yPred': y_pred})
-        results.plot(title="Model Name: " + self.modelName + ", No.of Epoch: " + str(self.epochs)
+        results.plot(title="Model Name: " + self.modelName + ", No.of Epoch: " + str(self.epochNumber)
                            + ", Batch Size: " + str(self.batchSize) + ", n_inputs: " + str(self.n_input))
         x = self.testX['total_power']
         normalized = (x - min(x)) / (max(x) - min(x))
@@ -356,6 +368,7 @@ class DeepLearning:
 
         print("Loaded model from disk")
         sourceData = pd.read_csv(data)
+        sourceData = sourceData.replace(np.NAN, 0, regex=True)
         self.X = sourceData[['total_power']]  # independent Variable
         self.Y = sourceData[['EV_label']]  # target variable
 
@@ -391,3 +404,8 @@ class DeepLearning:
         normalized = (x - min(x)) / (max(x) - min(x))
         plt.plot(list(normalized))
         plt.legend(['Y True', 'Y Predicted', 'Aggregated Power (normalized)'], loc="upper right")
+        figure = plt.gcf()  # get current figure
+        figure.set_size_inches(12, 6)
+        # when saving, specify the DPI
+        plt.savefig("result.png", dpi=100)
+        plt.close(figure)
