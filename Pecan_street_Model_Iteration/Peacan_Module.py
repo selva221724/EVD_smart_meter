@@ -16,7 +16,8 @@ from datetime import datetime
 import logging
 import tensorflow as tf
 
-plt.switch_backend('Agg')
+
+# plt.switch_backend('Agg')
 
 
 class DataReader:
@@ -369,6 +370,7 @@ class DeepLearning:
         print("Loaded model from disk")
         sourceData = pd.read_csv(data)
         sourceData = sourceData.replace(np.NAN, 0, regex=True)
+        sourceData['total_power'] = sourceData['total_power'].apply(lambda x: x if x > 0 else 0)
         self.X = sourceData[['total_power']]  # independent Variable
         self.Y = sourceData[['EV_label']]  # target variable
 
@@ -409,3 +411,5 @@ class DeepLearning:
         # when saving, specify the DPI
         plt.savefig("result.png", dpi=100)
         plt.close(figure)
+
+        print(self.accuracyReport)

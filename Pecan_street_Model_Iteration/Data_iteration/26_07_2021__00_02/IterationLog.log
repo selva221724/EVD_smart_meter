@@ -1,0 +1,4 @@
+07/26/2021 12:02:27 AM: INFO: Log File is Created Successfully
+07/26/2021 12:02:27 AM: WARNING: `period` argument is deprecated. Please use `save_freq` to specify the frequency in number of batches seen.
+07/26/2021 12:02:28 AM: INFO: Training Started
+07/26/2021 12:02:28 AM: INFO: epoch number 0 started

@@ -5,7 +5,7 @@ import pandas as pd
 # import seaborn as sns
 
 
-data_path = r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\1s_Austine_data\DataID_661_1_second.csv"
+data_path = r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\1s_Austine_data\DataID_4767_1_second.csv"
 
 sourceData = pd.read_csv(data_path)
 

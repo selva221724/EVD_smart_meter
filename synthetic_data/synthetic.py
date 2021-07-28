@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
+from glob import glob
 
 
 class SyntheticDataCreator:
@@ -16,6 +17,16 @@ class SyntheticDataCreator:
         self.SMDProcessor(SMData, s_timeFrame)
         self.dataMerger()
         return self.mergedDateset
+
+    def datacombiner(self,path,out_path):
+        csvList = glob(path + "\*.csv")
+        mainDataFrame = pd.DataFrame(columns=['index','localminute','car1','EV_label','watts_total','total_power'])
+        for csv in csvList:
+            print(csv)
+            dataFrame = pd.read_csv(csv)
+            mainDataFrame = mainDataFrame.append(dataFrame)
+
+        mainDataFrame.to_csv(out_path)
 
     def PecanProcessor(self, data, timeFrame):
         sourceData = pd.read_csv(data)
@@ -36,6 +47,7 @@ class SyntheticDataCreator:
         sourceData['localminute'] = pd.to_datetime(sourceData[['Year', 'Month', 'Day']]) + pd.to_timedelta(
             sourceData['Time'])
         sourceData = sourceData.sort_values(by='localminute')
+        sourceData['watts_total'] = sourceData['watts_total'].apply(lambda x:float(x.split('(')[1].split(",")[0]))
         sourceData = sourceData[['localminute', 'watts_total']]
         mask = (sourceData['localminute'] > timeFrame['start']) & (
                 sourceData['localminute'] <= timeFrame['end'])
