@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
 from keras import callbacks
-from keras.layers import LSTM, Dense, Dropout, GRU
+from keras.layers import LSTM, Dense, Dropout, GRU, AveragePooling1D
 from keras.models import Sequential, load_model
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
@@ -175,6 +175,10 @@ class DeepLearning:
                 self.LSTM3()
             elif modelName == 'GRU':
                 self.GRU()
+            elif modelName == 'GRU2':
+                self.GRU2()
+            elif modelName == 'GRU3':
+                self.GRU3()
 
         self.evaluation()
         self.trainingValidation()
@@ -236,7 +240,7 @@ class DeepLearning:
         generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
                                         batch_size=self.batchSize)
 
-        #  ================= Keras Model LSTM Build ===========================
+        #  ================= Keras Model LSTM1 Build ===========================
         self.model = Sequential()
         self.model.add(LSTM(150, activation='relu', input_shape=(self.n_input, n_features)))
         self.model.add(
@@ -252,7 +256,7 @@ class DeepLearning:
         generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
                                         batch_size=self.batchSize)
 
-        #  ================= Keras Model LSTM Build ===========================
+        #  ================= Keras Model LSTM2 Build ===========================
         self.model = Sequential()
         self.model.add(LSTM(150, activation='sigmoid', input_shape=(self.n_input, n_features)))
         self.model.add(Dropout(0.5))
@@ -269,7 +273,7 @@ class DeepLearning:
         generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
                                         batch_size=self.batchSize)
 
-        #  ================= Keras Model LSTM Build ===========================
+        #  ================= Keras Model LSTM3 Build ===========================
         self.model = Sequential()
         self.model.add(LSTM(50, return_sequences=True, input_shape=(self.n_input, n_features)))
         self.model.add(Dropout(0.2))
@@ -296,6 +300,42 @@ class DeepLearning:
         self.model.add(
             Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.summary()
+
+        self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                callbacks=[CustomCallback(), self.checkpoint])
+
+    def GRU2(self):
+        n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
+        generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                        batch_size=self.batchSize)
+
+        #  ================= Keras Model GRU Build ===========================
+        self.model = Sequential()
+        self.model.add(GRU(50, return_sequences=True, input_shape=(self.n_input, n_features)))
+        self.model.add(Dropout(0.2))
+        self.model.add(GRU(100, return_sequences=False))
+        self.model.add(Dropout(0.2))
+        self.model.add(
+            Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
+        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        self.model.summary()
+
+        self.history = self.model.fit_generator(generator, epochs=self.epochs,
+                                                callbacks=[CustomCallback(), self.checkpoint])
+
+    def GRU3(self):
+        n_features = self.trainX.shape[1]  # how many predictors/Xs/features we have to predict y
+        generator = TimeseriesGenerator(self.scaled_X_train, self.scaled_y_train, length=self.n_input,
+                                        batch_size=self.batchSize)
+
+        #  ================= Keras Model GRU Build ===========================
+        self.model = Sequential()
+        self.model.add(GRU(50, return_sequences=True, input_shape=(self.n_input, n_features)))
+        self.model.add(GRU(100, return_sequences=False))
+        self.model.add(
+            Dense(1, activation='sigmoid'))  # since it is a binary classification, we are calling sigmoid function
+        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
         self.model.summary()
 
         self.history = self.model.fit_generator(generator, epochs=self.epochs,

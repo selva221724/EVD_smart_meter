@@ -4,13 +4,6 @@ import time
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
-from keras import callbacks
-from keras.layers import LSTM, Dense, Dropout, GRU
-from keras.models import Sequential, load_model
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
-from keras.preprocessing.sequence import TimeseriesGenerator
-from sklearn.metrics import classification_report
 import os
 from datetime import datetime
 import logging
@@ -60,17 +53,17 @@ class DataReader:
             print(str(id) + ' is done')
 
     @staticmethod
-    def dataPreprocessor(dataFrame):
+    def dataPreprocessor(dataFrame,start,end):
         dataFrame['localminute'] = pd.to_datetime(dataFrame['localminute'], format='%Y-%m-%d %H:%M:%S-%f')
         dataFrame = dataFrame.sort_values(by='localminute')
         dataFrame['total_power'] = dataFrame['grid'] + dataFrame['solar']
         dataFrame['total_power'] = dataFrame['total_power'].replace(np.NAN, 0, regex=True)
         dataFrame['car1'] = dataFrame['car1'].replace(np.NAN, 0, regex=True)
-        dataFrame['EV_label'] = [1 if int(i) >= 1 else 0 for i in list(dataFrame['car1'])]
+        dataFrame['EV_label'] = [1 if i >= 0.3 else 0 for i in list(dataFrame['car1'])]
         dataFrame['EV_label'] = dataFrame['EV_label'].replace(np.NAN, 0, regex=True)
         dataFrame = dataFrame[['localminute', 'total_power', 'EV_label']]
-        mask = (dataFrame['localminute'] > "2018-04-01 00:00:00") & (
-                dataFrame['localminute'] <= "2018-04-30 00:00:00")
+        mask = (dataFrame['localminute'] > start) & (
+                dataFrame['localminute'] <= end)
         dataFrame = dataFrame.loc[mask]
         dataFrame.set_index('localminute', inplace=True)
         dataFrame = dataFrame.resample('1s').first()
@@ -89,7 +82,10 @@ class DataReader:
         for csv in csvList:
             print(csv)
             dataFrame = pd.read_csv(csv)
-            processedDataFrame = self.dataPreprocessor(dataFrame)
+            if '_zz' in csv:
+                processedDataFrame = self.dataPreprocessor(dataFrame,"2018-04-01 00:00:00","2018-06-30 00:00:00")
+            else:
+                processedDataFrame = self.dataPreprocessor(dataFrame, "2019-05-01 00:00:00", "2019-07-30 00:00:00")
             if initial:
                 localminute = processedDataFrame['localminute']
                 total_power = processedDataFrame['total_power']
@@ -107,5 +103,5 @@ class DataReader:
 
 
 dl = DataReader()
-dl.mergeDataIDs(r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\comb",
-                r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\comb\out.csv")
+dl.mergeDataIDs( r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\comb",
+                r"C:\Users\TamilS\Documents\Python Scripts\EV\EV DETECTION\CNN\Pecan_street_data_set\DATAPORT\Austin\comb\combined_50_houses_austine.csv")
