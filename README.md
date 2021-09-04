@@ -1,6 +1,6 @@
 ![alt text](logo.gif)
 
-# Electric Vehicle's Charge Event Detection using Smart Meter Data ( 1D CNN LSTM and GRU)
+# Electric Vehicle's Charge Event Detection using Smart Meter Data with 1D CNN (LSTM and GRU)
 
 ## Problem  
 
