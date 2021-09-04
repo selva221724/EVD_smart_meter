@@ -8,10 +8,10 @@ The number of electric vehicles growing rapidly over time which affects the powe
 The solution can be achieved at the house level which needs a large number of smart meters should be installed in every individual house which will cause huge costs and maintenance. Still, few market players are doing the load disaggregation at the house level. 
 The optimized solution needs to be solved at the Distribution transformer(DT) level which can be cost-effective and low maintenance by installing a smart meter in every individual DTs.
 
-##Objective
-To develop the AI model that can predict EV charging events in the distribution transformer level in real-time on the edge computing device or postpartum data analytics. This will generate the reports with the percentage of the load occupied by the electric vehicles and their trends in the time series. 
+## Objective
+To develop the AI model that can predict EV charging events in the distribution transformer level in real-time on the edge computing device or postpartum data analytics.
 
-##DataSet Used
+## DataSet Used
 1. Pecan Street Data set (50 houses with individual electric appliance and their power data including EVs) 
 https://www.pecanstreet.org/dataport/
 2. Smart Meter Data from Private Organization   
@@ -39,13 +39,13 @@ pip install -r requirements.txt
 
 
 ## ACN + Smart meter data Model Prediction  ( Household level )
-![alt text](1D_CNN\CNN_on_ACN+Smart_meter_data\final_out.png)
+![alt text](1D_CNN/CNN_on_ACN+Smart_meter_data/final_out.png)
 
 ## Pecan Street Data Model Prediction ( Household level )
-![alt text](1D_CNN\CNN_on_PecanStreet_data\EV_Detection_PECAN_STREET_DATASET_15mints_Data.png)
+![alt text](1D_CNN/CNN_on_PecanStreet_data/EV_Detection_PECAN_STREET_DATASET_15mints_Data.png)
 
 ## Pecan Street Data Model Prediction ( Distribution Transformer level )
-![alt text](Pecan_street_Model_Iteration\Results\50_combined_with_GRU_idivudal_house_model\result.png)
+![alt text](Pecan_street_Model_Iteration/Results/50_combined_with_GRU_idivudal_house_model/result.png)
 
 ### Training Results on GRU
 ```buildoutcfg
